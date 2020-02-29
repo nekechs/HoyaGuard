@@ -14,6 +14,9 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final static int REQUEST_ENABLE_BT = 0;
+    private final static int REQUEST_DISCOVER_BT = 1;
+
     TextView isOnText;
     Switch btToggle;
     Button discover, pairNew;
@@ -38,12 +41,21 @@ public class MainActivity extends AppCompatActivity {
                         showToast("Turning on bluetooth...");
 
                         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(intent, REQUEST_ENABLE_BT);
+                    }
+                    else {
+                        showToast("Bluetooth is already on :p");
                     }
 
                 }
 
                 else {
-
+                    if(mBlueAdapter.isEnabled()) {
+                        mBlueAdapter.disable();
+                        showToast("Turning BT on");
+                    }
+                    else {
+                    }
                 }
 
             }
@@ -52,7 +64,11 @@ public class MainActivity extends AppCompatActivity {
         discover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(!mBlueAdapter.isDiscovering()) {
+                    showToast("Making your phone discoverable");
+                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                    startActivityForResult(intent, REQUEST_DISCOVER_BT);
+                }
             }
         });
 
@@ -65,6 +81,23 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                if(resultCode == RESULT_OK) {
+                    showToast("BT is on");
+                }
+                else {
+                    showToast("Bluetooth unavailable. lol XD");
+                }
+                break;
+
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void showToast(String msg) {
